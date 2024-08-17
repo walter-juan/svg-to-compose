@@ -1,12 +1,13 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.5.21"
-    id("maven-publish")
+    kotlin("jvm") version "2.0.10"
+    `maven-publish`
 }
 
 group = "br.com.devsrsouza"
-version = "0.7.0"
+version = "0.9.1"
 
 repositories {
     mavenCentral()
@@ -15,10 +16,10 @@ repositories {
 }
 
 dependencies {
-    implementation("com.google.guava:guava:23.0")
-    implementation("com.android.tools:sdk-common:27.2.0-alpha16")
-    implementation("com.android.tools:common:27.2.0-alpha16")
-    implementation("com.squareup:kotlinpoet:1.9.0")
+    implementation("com.google.guava:guava:33.2.1-jre")
+    implementation("com.android.tools:sdk-common:31.5.2")
+    implementation("com.android.tools:common:31.5.1")
+    implementation("com.squareup:kotlinpoet:1.18.1")
     implementation("org.ogce:xpp3:1.1.6")
 
     testImplementation(kotlin("test-junit"))
@@ -28,8 +29,13 @@ tasks.test {
     useJUnit()
 }
 
-tasks.withType<KotlinCompile>() {
-    kotlinOptions.jvmTarget = "1.8"
+tasks.withType<KotlinCompile> {
+    compilerOptions.jvmTarget.set(JvmTarget.JVM_17)
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 publishing {
@@ -39,3 +45,4 @@ publishing {
         }
     }
 }
+
