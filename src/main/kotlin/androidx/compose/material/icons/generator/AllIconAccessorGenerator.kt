@@ -10,7 +10,8 @@ class AllIconAccessorGenerator(
     private val iconProperties: Collection<MemberName>,
     private val accessClass: ClassName,
     private val allAssetsPropertyName: String,
-    private val childGroups: List<GeneratedGroup>
+    private val childGroups: List<GeneratedGroup>,
+    private val generateStringAccessor: Boolean,
 ) {
     fun createPropertySpec(
         fileSpec: FileSpec.Builder,
@@ -52,12 +53,57 @@ class AllIconAccessorGenerator(
             }.build())
             .build()
 
+        return buildList {
+            add(allIconsBackingProperty)
+            add(allIconProperty)
+
+            if (generateStringAccessor) {
+                addAll(createPropertySpecForNamed(fileSpec))
+            }
+        }
+    }
+
+    private fun createPropertySpecForNamed(
+        fileSpec: FileSpec.Builder,
+    ): List<PropertySpec> {
+        val map = (Map::class).asClassName()
+        // preventing that a asset has the name List and conflict with Kotlin List import
+        fileSpec.addAliasedImport(map, "____KtMap")
+
+        val allAssetsNamedPropertyName = "${allAssetsPropertyName}Named"
+
+        val allIconsType = map.parameterizedBy(STRING, ClassNames.ImageVector)
+        val allIconsBackingProperty = backingPropertySpec("__$allAssetsNamedPropertyName", allIconsType)
+
+        val allIconsParametersFromGroups = childGroups.map { "%M.$allAssetsNamedPropertyName.mapKeys { \"\${%M.groupName}.\${it.key}\"}" }
+
+        // adding import to `AllAssetsNamed`
+        childGroups.forEach {
+            fileSpec.addImport(it.groupPackage, allAssetsNamedPropertyName)
+            fileSpec.addImport(it.groupPackage, "groupName")
+        }
+
+        val allIconsParameters = iconProperties.map { "\"${it.simpleName.lowercase()}\" to %M" }
+        val parameters = allIconsParameters.joinToString(prefix = "(", postfix = ")")
+        val childGroupsParameters = allIconsParametersFromGroups.joinToString(" + ")
+
+        val allIconProperty = PropertySpec.builder(allAssetsNamedPropertyName, allIconsType)
+            .receiver(accessClass)
+            .getter(FunSpec.getterBuilder().withBackingProperty(allIconsBackingProperty) {
+                addStatement(
+                    "%N= ${if(childGroups.isNotEmpty()) "$childGroupsParameters + " else ""}mapOf$parameters",
+                    allIconsBackingProperty,
+                    *(childGroups.flatMap{ listOf(groupAllIconsMember(it), groupAllIconsMember(it)) } + iconProperties).toTypedArray()
+                )
+            }.build())
+            .build()
+
         return listOf(
             allIconsBackingProperty, allIconProperty
         )
     }
 
-    fun groupAllIconsMember(group: GeneratedGroup): MemberName {
+    private fun groupAllIconsMember(group: GeneratedGroup): MemberName {
         return MemberName(group.groupPackage, group.groupName.second)
     }
 }

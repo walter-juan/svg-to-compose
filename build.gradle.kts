@@ -17,9 +17,9 @@ repositories {
 
 dependencies {
     implementation("com.google.guava:guava:33.2.1-jre")
-    implementation("com.android.tools:sdk-common:31.5.2")
-    implementation("com.android.tools:common:31.5.1")
-    implementation("com.squareup:kotlinpoet:1.18.1")
+    implementation("com.android.tools:sdk-common:31.6.0")
+    implementation("com.android.tools:common:31.6.0")
+    implementation("com.squareup:kotlinpoet:1.9.0")
     implementation("org.ogce:xpp3:1.1.6")
 
     testImplementation(kotlin("test-junit"))
