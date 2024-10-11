@@ -40,7 +40,7 @@ class AllIconAccessorGenerator(
 
         val allIconsParameters = iconProperties.map { "%M" }
         val parameters = allIconsParameters.joinToString(prefix = "(", postfix = ")")
-        val childGroupsParameters = allIconsParametersFromGroups.joinToString(" + ")
+        val childGroupsParameters = allIconsParametersFromGroups.joinToString(" + \n")
 
         val allIconProperty = PropertySpec.builder(allAssetsPropertyName, allIconsType)
             .receiver(accessClass)
