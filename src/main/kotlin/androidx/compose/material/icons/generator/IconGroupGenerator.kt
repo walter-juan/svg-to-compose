@@ -37,7 +37,7 @@ class IconGroupGenerator(
                         addProperty(
                             PropertySpec.builder("groupName", STRING)
                                 .receiver(createdObjectClassName)
-                                .getter(FunSpec.getterBuilder().addStatement("return \"${groupName.lowercase()}\"").build())
+                                .getter(FunSpec.getterBuilder().addStatement("return \"${groupName}\"").build())
                                 .build()
                         )
                     }
