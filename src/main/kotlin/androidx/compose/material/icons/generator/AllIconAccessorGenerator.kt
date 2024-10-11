@@ -83,7 +83,7 @@ class AllIconAccessorGenerator(
             fileSpec.addImport(it.groupPackage, "groupName")
         }
 
-        val allIconsParameters = iconProperties.map { "\"${it.simpleName.lowercase()}\" to %M" }
+        val allIconsParameters = iconProperties.map { "\"${it.simpleName}\" to %M" }
         val parameters = allIconsParameters.joinToString(prefix = "(", postfix = ")")
         val childGroupsParameters = allIconsParametersFromGroups.joinToString(" + ")
 
