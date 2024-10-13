@@ -8,6 +8,7 @@ import com.squareup.kotlinpoet.MemberName
 import java.io.File
 import java.util.*
 
+typealias GroupNameTransformer = (group: String) -> String
 typealias IconNameTransformer = (iconName: String, group: String) -> String
 
 object Svg2Compose {
@@ -28,6 +29,7 @@ object Svg2Compose {
         outputSourceDirectory: File,
         vectorsDirectory: File,
         type: VectorType = VectorType.SVG,
+        groupNameTransformer: GroupNameTransformer = { it.toKotlinPropertyName() },
         iconNameTransformer: IconNameTransformer = { it, _ -> it.toKotlinPropertyName() },
         allAssetsPropertyName: String = "AllAssets",
         generatePreview: Boolean = true,
@@ -49,7 +51,7 @@ object Svg2Compose {
                 val previousGroup = groupStack.peekOrNull()
 
                 // if there is no previous group, this is the root dir, and the group name should be the accessorName
-                val groupName = if(previousGroup == null) accessorName else file.name.toKotlinPropertyName()
+                val groupName = if(previousGroup == null) accessorName else groupNameTransformer(file.name)
                 val groupPackage = previousGroup?.let { group -> "${group.groupPackage}.${group.groupName.second.toLowerCase()}" }
                     ?: "$applicationIconPackage"
                 val iconsPackage = "$groupPackage.${groupName.toLowerCase()}"
